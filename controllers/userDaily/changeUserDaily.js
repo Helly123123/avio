@@ -1,4 +1,6 @@
+const { json } = require("express");
 const UserDaily = require("../../models/UserDaily");
+const UserDailyData = require("../../models/UserDailyData");
 
 module.exports = async (req, res) => {
   try {
@@ -12,16 +14,26 @@ module.exports = async (req, res) => {
       physical_activity,
       recreation_preferences,
       time_awakening,
+      day,
     } = req.body;
 
-    // Validate required fields
+    const data = {
+      sleep_time,
+      meals,
+      energy_level,
+      work_schedule,
+      stress_level,
+      physical_activity,
+      recreation_preferences,
+      time_awakening,
+    };
+
     if (!login) {
       return res.status(400).json({
         message: "login обязателен",
       });
     }
 
-    // Validate numeric fields (example, adjust based on schema)
     if (
       (energy_level !== undefined && isNaN(parseInt(energy_level))) ||
       (stress_level !== undefined && isNaN(parseInt(stress_level))) ||
@@ -40,33 +52,39 @@ module.exports = async (req, res) => {
       });
     }
 
-    const userData = {
-      login,
-      sleep_time,
-      meals,
-      energy_level,
-      work_schedule,
-      stress_level,
-      physical_activity,
-      recreation_preferences,
-      time_awakening,
-    };
+    // const userData = {
+    //   login,
+    //   sleep_time,
+    //   meals,
+    //   energy_level,
+    //   work_schedule,
+    //   stress_level,
+    //   physical_activity,
+    //   recreation_preferences,
+    //   time_awakening,
+    // };
 
     const checkDaily = await UserDaily.getUserFullDataByName(login);
     let result;
     if (checkDaily && checkDaily.has_daily_data) {
-      result = await UserDaily.update(login, userData);
+      const updateData = await UserDailyData.updateDataUser(login, day, data);
+      console.log(updateData);
+      result = await UserDaily.update(login, JSON.stringify(updateData));
       return res.status(200).json({
         message: "Данные пользователя успешно обновлены",
         login,
       });
     } else {
-      result = await UserDaily.create(userData);
-      return res.status(201).json({
-        message: "Данные пользователя успешно созданы",
-        id: result.id,
-        login,
-      });
+      const getDataUser = await UserDailyData.getUserData(day, data);
+      console.log(getDataUser);
+      if (getDataUser) {
+        result = await UserDaily.create(JSON.stringify(getDataUser), login);
+        return res.status(201).json({
+          message: "Данные пользователя успешно созданы",
+          id: result.id,
+          login,
+        });
+      }
     }
   } catch (error) {
     console.error("Ошибка при сохранении данных:", error);

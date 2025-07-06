@@ -12,10 +12,22 @@ module.exports = async (req, res) => {
       });
     }
 
-    const { login } = req.body;
+    const { login, day } = req.body;
+
+    if (!login) {
+      return res.status(500).json({
+        message: "login Обязателен",
+      });
+    }
+
+    if (!day) {
+      return res.status(500).json({
+        message: "day Обязателен",
+      });
+    }
 
     let paramsUser;
-    const userData = await UserDaily.getUserFullDataByName(login);
+    const userData = await UserDaily.getUserFullDataByName(login, day);
     if (userData) {
       paramsUser = await params.giveRecommendations(
         userData.login,
@@ -34,6 +46,8 @@ module.exports = async (req, res) => {
         "Составь мне 2 рекомендации по работе и 2 рекомендации по питанию, от тебя требуется только задачи без приветственного текста"
       );
     }
+
+    console.log(paramsUser);
 
     const messageUser = [{ role: "user", content: paramsUser }];
 

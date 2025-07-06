@@ -34,17 +34,10 @@ async function initializeDatabase() {
 
     await connection.query(`
       CREATE TABLE IF NOT EXISTS usersDaily (
-        uuid VARCHAR(36) UNIQUE,
-        login VARCHAR(50) NOT NULL,
-        sleep_time INT NOT NULL,
-        meals JSON NOT NULL,
-        energy_level INT NOT NULL,
-        work_schedule JSON NOT NULL,
-        stress_level INT,
-        physical_activity VARCHAR(255),
-        recreation_preferences JSON,
-        time_awakening VARCHAR(155)
-      )
+      uuid VARCHAR(36) UNIQUE,
+      login VARCHAR(50) NOT NULL,
+      data TEXT
+    )
     `);
 
     await connection.query(`

@@ -19,8 +19,8 @@ class TaskManager {
 
       const [result] = await pool.query(
         `INSERT INTO ${login}_tasks 
-        (uuid, text, status, created_at) 
-        VALUES (?, ?, ?, CURRENT_DATE)`,
+        (uuid, text, status, time, created_at) 
+        VALUES (?, ?, ?, ?, CURRENT_DATE)`,
         [uuid, text, 0]
       );
 

@@ -2,36 +2,33 @@ const pool = require("../config/db");
 const { v4: uuidv4 } = require("uuid");
 
 class UserDaily {
-  static async create(userData) {
-    const {
-      login,
-      sleep_time,
-      meals,
-      energy_level,
-      work_schedule,
-      stress_level,
-      physical_activity,
-      recreation_preferences,
-      time_awakening,
-    } = userData;
+  static async create(userData, login) {
+    // const {
+    //   sleep_time,
+    //   meals,
+    //   energy_level,
+    //   work_schedule,
+    //   stress_level,
+    //   physical_activity,
+    //   recreation_preferences,
+    //   time_awakening,
+    // } = userData;
 
-    // Validate required fields
     if (!login) {
       throw new Error("login обязателен");
     }
 
-    const mealsValue =
-      typeof meals === "object" ? JSON.stringify(meals) : meals;
-    const workScheduleValue =
-      typeof work_schedule === "object"
-        ? JSON.stringify(work_schedule)
-        : work_schedule;
-    const recreationPreferencesValue =
-      typeof recreation_preferences === "object"
-        ? JSON.stringify(recreation_preferences)
-        : recreation_preferences;
+    // const mealsValue =
+    //   typeof meals === "object" ? JSON.stringify(meals) : meals;
+    // const workScheduleValue =
+    //   typeof work_schedule === "object"
+    //     ? JSON.stringify(work_schedule)
+    //     : work_schedule;
+    // const recreationPreferencesValue =
+    //   typeof recreation_preferences === "object"
+    //     ? JSON.stringify(recreation_preferences)
+    //     : recreation_preferences;
 
-    // Check if record already exists
     const [existingRows] = await pool.query(
       "SELECT * FROM usersDaily WHERE login = ?",
       [login]
@@ -44,76 +41,35 @@ class UserDaily {
 
     const [result] = await pool.query(
       `INSERT INTO usersDaily
-      (uuid, login, sleep_time, meals, energy_level, work_schedule, stress_level, physical_activity, recreation_preferences, time_awakening) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        uuid,
-        login,
-        sleep_time,
-        mealsValue,
-        energy_level,
-        workScheduleValue,
-        stress_level,
-        physical_activity,
-        recreationPreferencesValue,
-        time_awakening,
-      ]
+      (uuid, login, data) 
+      VALUES (?, ?, ?)`,
+      [uuid, login, userData]
     );
 
     return { id: result.insertId, login };
   }
 
   static async update(login, updateData) {
-    const {
-      sleep_time,
-      meals,
-      energy_level,
-      work_schedule,
-      stress_level,
-      physical_activity,
-      recreation_preferences,
-      time_awakening,
-    } = updateData;
-
-    // Validate required fields
     if (!login) {
       throw new Error("login обязателен");
     }
 
-    // Stringify JSON fields if they are objects
-    const mealsValue =
-      typeof meals === "object" ? JSON.stringify(meals) : meals;
-    const workScheduleValue =
-      typeof work_schedule === "object"
-        ? JSON.stringify(work_schedule)
-        : work_schedule;
-    const recreationPreferencesValue =
-      typeof recreation_preferences === "object"
-        ? JSON.stringify(recreation_preferences)
-        : recreation_preferences;
+    // const mealsValue =
+    //   typeof meals === "object" ? JSON.stringify(meals) : meals;
+    // const workScheduleValue =
+    //   typeof work_schedule === "object"
+    //     ? JSON.stringify(work_schedule)
+    //     : work_schedule;
+    // const recreationPreferencesValue =
+    //   typeof recreation_preferences === "object"
+    //     ? JSON.stringify(recreation_preferences)
+    //     : recreation_preferences;
 
     const [result] = await pool.query(
       `UPDATE usersDaily SET 
-        sleep_time = ?,
-        meals = ?,
-        energy_level = ?,
-        work_schedule = ?,
-        stress_level = ?,
-        physical_activity = ?,
-        recreation_preferences = ?,
-        time_awakening = ?
+        data = ?
       WHERE login = ?`,
-      [
-        sleep_time,
-        mealsValue,
-        energy_level,
-        workScheduleValue,
-        stress_level,
-        physical_activity,
-        recreationPreferencesValue,
-        time_awakening,
-        login,
-      ]
+      [updateData, login]
     );
 
     if (result.affectedRows === 0) {
@@ -144,7 +100,7 @@ class UserDaily {
     return rows[0] || null;
   }
 
-  static async getUserFullDataByName(login) {
+  static async getUserFullDataByName(login, day) {
     try {
       const [userRows] = await pool.query(
         "SELECT * FROM users WHERE login = ?",
@@ -163,6 +119,11 @@ class UserDaily {
       const userData = userRows[0];
       const dailyData = dailyRows.length ? dailyRows[0] : {};
 
+      const parsedData = JSON.parse(dailyData.data);
+      const dayData = parsedData[day.toLowerCase()] || {};
+
+      console.log(dayData);
+
       const safeJsonParse = (str) => {
         try {
           return str && typeof str === "string" ? JSON.parse(str) : str;
@@ -174,16 +135,14 @@ class UserDaily {
       return {
         ...userData,
         ...(dailyRows.length && {
-          sleep_time: dailyData.sleep_time,
-          meals: safeJsonParse(dailyData.meals),
-          energy_level: dailyData.energy_level,
-          work_schedule: safeJsonParse(dailyData.work_schedule),
-          stress_level: dailyData.stress_level,
-          physical_activity: dailyData.physical_activity,
-          recreation_preferences: safeJsonParse(
-            dailyData.recreation_preferences
-          ),
-          time_awakening: dailyData.time_awakening,
+          sleep_time: dayData.sleep_time,
+          meals: safeJsonParse(dayData.meals),
+          energy_level: dayData.energy_level,
+          work_schedule: safeJsonParse(dayData.work_schedule),
+          stress_level: dayData.stress_level,
+          physical_activity: dayData.physical_activity,
+          recreation_preferences: safeJsonParse(dayData.recreation_preferences),
+          time_awakening: dayData.time_awakening,
           has_daily_data: true,
         }),
       };

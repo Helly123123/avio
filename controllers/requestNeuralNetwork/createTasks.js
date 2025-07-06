@@ -13,10 +13,10 @@ module.exports = async (req, res) => {
       });
     }
 
-    const { login } = req.body;
+    const { login, day } = req.body;
 
     let paramsUser;
-    const userData = await UserDaily.getUserFullDataByName(login);
+    const userData = await UserDaily.getUserFullDataByName(login, day);
     if (userData) {
       paramsUser = await params.giveRecommendations(
         userData.login,
@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
         userData.physical_activity,
         userData.recreation_preferences,
         userData.time_awakening,
-        "Составь мне 5 задач, которые позволят мне повысить свою производительность"
+        "Мне нужно чтобы ты создал мне 5 задач, который повысят мою продуктивность. Мне нужно чтобы в их отправил в виде JSON, только задачи и ничего более, чтобы я мог парсить эти данные, мне нужно время и текст задачи"
       );
     }
 
@@ -40,7 +40,7 @@ module.exports = async (req, res) => {
 
     const requestData = {
       messages: messageUser,
-      callback_url: "https://webhook.site/844157bd-db47-4c4e-9e61-908bfebf13d7",
+      callback_url: "http://103.54.19.87:3000/api/aiAnswer",
       model: "gpt-4.1-nano",
       temperature: 0.7,
       max_tokens: 500,
@@ -57,20 +57,9 @@ module.exports = async (req, res) => {
         timeout: 30000,
       }
     );
-    const tasksToCreate = [
-      {
-        text: "Complete project proposal",
-      },
-      {
-        text: "Schedule team meeting",
-      },
-      {
-        text: "Review documentation",
-      },
-    ];
 
-    const createdTasks = await TaskManager.createTasks(login, tasksToCreate);
-    console.log(createdTasks);
+    // const createdTasks = await TaskManager.createTasks(login, tasksToCreate);
+    // console.log(createdTasks);
 
     res.json({
       data: response.data,
