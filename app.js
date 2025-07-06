@@ -18,6 +18,7 @@ const neuralRouter = require("./routes/neuralRouter");
 const mailingRouter = require("./routes/mailingRouter");
 const tasksRouter = require("./routes/tasksRouter");
 const tasksHook = require("./routes/hooks/tasksHook");
+const recommendationsHook = require("./routes/hooks/recommendationsHook");
 
 // app.post("/api/aiAnswer", (req, res) => {
 //   try {
@@ -72,6 +73,7 @@ app.use("/api", neuralRouter);
 app.use("/api", tasksRouter);
 app.use("/api", mailingRouter);
 app.use("/api", tasksHook);
+app.use("/api", recommendationsHook);
 
 app.get("/", (req, res) => {
   res.json({ message: "API is working" });
