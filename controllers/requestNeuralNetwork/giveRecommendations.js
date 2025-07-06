@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
         userData.physical_activity,
         userData.recreation_preferences,
         userData.time_awakening,
-        "Составь мне 2 рекомендации по работе и 2 рекомендации по питанию, от тебя требуется только задачи без приветственного текста"
+        "Составь мне 2 рекомендации по работе и 2 рекомендации по питанию, от тебя требуется только задачи без приветственного текста Мне нужно чтобы в их отправил в виде JSON, только рекомендации и ничего более, чтобы я мог парсить эти данные, мне нужно заголовок, подзаголовок  и время когда лушче выполнить эту задачу"
       );
     }
 
@@ -53,7 +53,7 @@ module.exports = async (req, res) => {
 
     const requestData = {
       messages: messageUser,
-      callback_url: "https://webhook.site/696d45a2-3891-4601-af50-1a03178c92af",
+      callback_url: "http://103.54.19.87:3000/api/hooks/recommendationsHook",
       model: "gpt-4.1-nano",
       temperature: 0.7,
       max_tokens: 500,
