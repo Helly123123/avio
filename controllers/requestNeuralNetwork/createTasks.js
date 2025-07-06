@@ -40,7 +40,7 @@ module.exports = async (req, res) => {
 
     const requestData = {
       messages: messageUser,
-      callback_url: "http://103.54.19.87:3000/api/aiAnswer",
+      callback_url: "http://103.54.19.87:3000/api/hooks/tasksHooks",
       model: "gpt-4.1-nano",
       temperature: 0.7,
       max_tokens: 500,

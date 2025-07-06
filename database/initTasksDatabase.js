@@ -22,7 +22,7 @@ async function initializeTasks(userLogin) {
     await connection.query(`
     CREATE TABLE IF NOT EXISTS ${nameDatabase} (
       uuid VARCHAR(36) UNIQUE,
-      text VARCHAR(50) NOT NULL,
+      text TEXT NOT NULL,
       status TINYINT(1),
       time TEXT,
       created_at DATE DEFAULT (CURRENT_DATE)
