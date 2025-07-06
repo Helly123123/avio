@@ -28,7 +28,9 @@ module.exports = async (req, res) => {
       console.error("Ошибка парсинга JSON:", e);
       jsonData = content;
     }
-
+    // console.log(jsonData);
+    const createdTasks = await TaskManager.createTasks("helly", jsonData);
+    console.log(createdTasks);
     res.status(200).json({
       success: true,
       data: jsonData,

@@ -117,8 +117,13 @@ class UserDaily {
       );
 
       const userData = userRows[0];
-      const dailyData = dailyRows.length ? dailyRows[0] : {};
-
+      const dailyData = dailyRows.length ? dailyRows[0] : false;
+      console.log(dailyData);
+      if (!dailyData) {
+        return {
+          has_daily_data: false,
+        };
+      }
       const parsedData = JSON.parse(dailyData.data);
       const dayData = parsedData[day.toLowerCase()] || {};
 

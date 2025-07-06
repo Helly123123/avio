@@ -64,7 +64,7 @@ module.exports = async (req, res) => {
     //   time_awakening,
     // };
 
-    const checkDaily = await UserDaily.getUserFullDataByName(login);
+    const checkDaily = await UserDaily.getUserFullDataByName(login, day);
     let result;
     if (checkDaily && checkDaily.has_daily_data) {
       const updateData = await UserDailyData.updateDataUser(login, day, data);

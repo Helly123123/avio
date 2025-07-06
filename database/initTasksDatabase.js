@@ -24,6 +24,7 @@ async function initializeTasks(userLogin) {
       uuid VARCHAR(36) UNIQUE,
       text VARCHAR(50) NOT NULL,
       status TINYINT(1),
+      time TEXT,
       created_at DATE DEFAULT (CURRENT_DATE)
     )
     `);

@@ -13,22 +13,23 @@ class TaskManager {
   static async createTasks(login, tasks) {
     const createdTasks = [];
 
-    for (const task of tasks) {
-      const { text } = task;
+    for (const exercise of tasks) {
+      const { task, time } = exercise;
       const uuid = uuidv4();
 
       const [result] = await pool.query(
         `INSERT INTO ${login}_tasks 
         (uuid, text, status, time, created_at) 
         VALUES (?, ?, ?, ?, CURRENT_DATE)`,
-        [uuid, text, 0]
+        [uuid, task, 0, time]
       );
 
       createdTasks.push({
         id: result.insertId,
         uuid,
-        text,
+        task,
         status: 0,
+        time,
       });
     }
 
