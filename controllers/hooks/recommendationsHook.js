@@ -9,7 +9,6 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: "Invalid data format" });
     }
 
-    // Получаем содержимое сообщения ассистента
     const assistantMessage = webhookData.result[0].message.content;
 
     // Парсим JSON из строки
