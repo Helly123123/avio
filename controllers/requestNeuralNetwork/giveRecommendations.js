@@ -1,6 +1,7 @@
 const axios = require("axios");
 require("dotenv").config();
 const UserDaily = require("../../models/UserDaily");
+const GptLogs = require("../../models/gptLogs");
 const params = require("../../config/params");
 
 module.exports = async (req, res) => {
@@ -71,9 +72,19 @@ module.exports = async (req, res) => {
       }
     );
 
+    console.log(response.data);
+
+    const createLogs = await GptLogs.create(
+      response.data.request_id,
+      response.data.model,
+      response.data.status,
+      userData.login
+    );
+
     res.json({
       data: response.data,
       user: userData || null,
+      logs: createLogs,
     });
   } catch (error) {
     console.error("Ошибка:", {

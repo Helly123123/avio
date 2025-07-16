@@ -22,8 +22,8 @@ class User {
 
     const [result] = await pool.query(
       `INSERT INTO users 
-      (uuid, login, password, email, age, purpose, typeWork) 
-      VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      (uuid, login, password, email, age, purpose, typeWork, subscription) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         uuid,
         login,
@@ -32,10 +32,19 @@ class User {
         age || null,
         purpose || null,
         typeWork || null,
+        0,
       ]
     );
-
-    return { id: result.insertId, login, email };
+    console.log(result);
+    return {
+      id: result.insertId,
+      login,
+      email,
+      age,
+      purpose,
+      typeWork,
+      affectedRows: result.affectedRows,
+    };
   }
 }
 

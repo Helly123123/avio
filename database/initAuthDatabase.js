@@ -28,7 +28,18 @@ async function initializeDatabase() {
         age INT,
         purpose VARCHAR(50),
         typeWork VARCHAR(50),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        verified TINYINT(1) DEFAULT 0,
+        subscription INT
+      )
+    `);
+
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS auth_codes (
+        login VARCHAR(50) NOT NULL,
+        email VARCHAR(100) UNIQUE NOT NULL,
+        code INT,
+        verified TINYINT(1) DEFAULT 0
       )
     `);
 
@@ -37,6 +48,26 @@ async function initializeDatabase() {
       uuid VARCHAR(36) UNIQUE,
       login VARCHAR(50) NOT NULL,
       data TEXT
+    )
+    `);
+
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS recommendationsLogs (
+      request_id INT,
+      model TEXT,
+      status TEXT,
+      cost INT,
+      login TEXT
+    )
+    `);
+
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS tasksLogs (
+      request_id INT,
+      model TEXT,
+      status TEXT,
+      cost INT,
+      login TEXT
     )
     `);
 

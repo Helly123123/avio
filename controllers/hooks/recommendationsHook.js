@@ -1,6 +1,7 @@
 require("dotenv").config();
 const { parseAssistantMessage } = require("../../utils/parseAssistantMessage");
 const { sendToFrontend } = require("../../utils/sendToFrontend");
+const GptLogs = require("../../models/gptLogs");
 
 module.exports = async (req, res) => {
   try {
@@ -10,6 +11,16 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: "Invalid data format" });
     }
 
+    const updateStatus = await GptLogs.updateStatus(
+      webhookData.request_id,
+      webhookData.status
+    );
+
+    const updateCost = await GptLogs.updateCost(
+      webhookData.request_id,
+      webhookData.cost
+    );
+
     const assistantMessage = webhookData.result[0].message.content;
     const recommendations = parseAssistantMessage(assistantMessage);
 
@@ -17,6 +28,8 @@ module.exports = async (req, res) => {
 
     await sendToFrontend(FRONTEND_WEBHOOK_URL, {
       recommendations: recommendations,
+      status: updateStatus,
+      cost: updateCost,
     });
 
     res.status(200).json({

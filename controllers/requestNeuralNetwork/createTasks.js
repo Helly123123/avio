@@ -3,6 +3,7 @@ require("dotenv").config();
 const UserDaily = require("../../models/UserDaily");
 const params = require("../../config/params");
 const TaskManager = require("../../models/userTasks");
+const GptLogs = require("../../models/gptLogs");
 
 module.exports = async (req, res) => {
   try {
@@ -58,12 +59,17 @@ module.exports = async (req, res) => {
       }
     );
 
-    // const createdTasks = await TaskManager.createTasks(login, tasksToCreate);
-    // console.log(createdTasks);
+    const createLogs = await GptLogs.createTasks(
+      response.data.request_id,
+      response.data.model,
+      response.data.status,
+      userData.login
+    );
 
     res.json({
       data: response.data,
       user: userData || null,
+      logs: createLogs,
     });
   } catch (error) {
     console.error("Ошибка:", {

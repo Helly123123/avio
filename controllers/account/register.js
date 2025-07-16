@@ -4,7 +4,9 @@ const jwt = require("jsonwebtoken");
 const { validationResult } = require("express-validator");
 require("dotenv").config();
 const createTasks = require("../../database/initTasksDatabase");
-// Проверка при загрузке модуля
+const { sendVerificationCode } = require("../sendCode/mailingController");
+const authCode = require("../../models/authCode");
+
 if (!process.env.JWT_SECRET) {
   console.error("FATAL: JWT_SECRET не загружен");
   process.exit(1);
@@ -53,10 +55,9 @@ module.exports = async (req, res) => {
       chat_id,
     });
 
-    // Генерация JWT токена
     const token = jwt.sign(
       {
-        userId: user_id, // Используем user_id из таблицы users
+        userId: user_id,
         email: email,
         login: login,
       },
@@ -64,25 +65,43 @@ module.exports = async (req, res) => {
       { expiresIn: "24h" }
     );
 
-    res.status(201).json({
-      token, // Добавляем токен в ответ
-      user: {
-        user_id: newUser.user_id,
-        email: newUser.email,
-        login: newUser.login,
-        // Можно добавить и другие поля, если нужно:
-        age: newUser.age,
-        purpose: newUser.purpose,
-        typeWork: newUser.typeWork,
-      },
-    });
+    if (newUser.affectedRows === 1) {
+      async function generateSixDigitCode() {
+        return Math.floor(100000 + Math.random() * 900000).toString();
+      }
+
+      const code = await generateSixDigitCode();
+      const success = await sendVerificationCode(email, code);
+      if (success) {
+        await authCode.create(email, login, code);
+        res.status(201).json({
+          token,
+          sendCode: true,
+          user: {
+            email: newUser.email,
+            login: newUser.login,
+            age: newUser.age || null,
+            purpose: newUser.purpose || null,
+            typeWork: newUser.typeWork || null,
+            verified: 0,
+            subscription: 0,
+          },
+        });
+      }
+    } else {
+      res.status(404).json({
+        error: {
+          message: "Ошибка при регистрации пользователя",
+        },
+      });
+    }
 
     createTasks(newUser.login);
   } catch (error) {
     console.error("Ошибка регистрации:", error);
     res.status(401).json({
       message: "Ошибка при регистрации пользователя",
-      // Только для разработки:
+
       ...(process.env.NODE_ENV === "development" && {
         error: error.message,
       }),
