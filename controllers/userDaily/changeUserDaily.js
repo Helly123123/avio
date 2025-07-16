@@ -5,7 +5,7 @@ const UserDailyData = require("../../models/UserDailyData");
 module.exports = async (req, res) => {
   try {
     const {
-      login,
+      email,
       sleep_time,
       meals,
       energy_level,
@@ -28,9 +28,9 @@ module.exports = async (req, res) => {
       time_awakening,
     };
 
-    if (!login) {
+    if (!email) {
       return res.status(400).json({
-        message: "login обязателен",
+        message: "email обязателен",
       });
     }
 
@@ -45,44 +45,32 @@ module.exports = async (req, res) => {
       });
     }
 
-    const checkUser = await UserDaily.findByName(login);
+    const checkUser = await UserDaily.findByName(email);
     if (!checkUser) {
       return res.status(404).json({
         message: "Пользователь не найден",
       });
     }
 
-    // const userData = {
-    //   login,
-    //   sleep_time,
-    //   meals,
-    //   energy_level,
-    //   work_schedule,
-    //   stress_level,
-    //   physical_activity,
-    //   recreation_preferences,
-    //   time_awakening,
-    // };
-
-    const checkDaily = await UserDaily.getUserFullDataByName(login, day);
+    const checkDaily = await UserDaily.getUserFullDataByName(email, day);
     let result;
     if (checkDaily && checkDaily.has_daily_data) {
-      const updateData = await UserDailyData.updateDataUser(login, day, data);
+      const updateData = await UserDailyData.updateDataUser(email, day, data);
       console.log(updateData);
-      result = await UserDaily.update(login, JSON.stringify(updateData));
+      result = await UserDaily.update(email, JSON.stringify(updateData));
       return res.status(200).json({
         message: "Данные пользователя успешно обновлены",
-        login,
+        email,
       });
     } else {
       const getDataUser = await UserDailyData.getUserData(day, data);
       console.log(getDataUser);
       if (getDataUser) {
-        result = await UserDaily.create(JSON.stringify(getDataUser), login);
+        result = await UserDaily.create(JSON.stringify(getDataUser), email);
         return res.status(201).json({
           message: "Данные пользователя успешно созданы",
           id: result.id,
-          login,
+          email,
         });
       }
     }

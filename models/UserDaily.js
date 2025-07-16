@@ -2,7 +2,7 @@ const pool = require("../config/db");
 const { v4: uuidv4 } = require("uuid");
 
 class UserDaily {
-  static async create(userData, login) {
+  static async create(userData, email) {
     // const {
     //   sleep_time,
     //   meals,
@@ -14,8 +14,8 @@ class UserDaily {
     //   time_awakening,
     // } = userData;
 
-    if (!login) {
-      throw new Error("login обязателен");
+    if (!email) {
+      throw new Error("email обязателен");
     }
 
     // const mealsValue =
@@ -30,28 +30,28 @@ class UserDaily {
     //     : recreation_preferences;
 
     const [existingRows] = await pool.query(
-      "SELECT * FROM usersDaily WHERE login = ?",
-      [login]
+      "SELECT * FROM usersDaily WHERE email = ?",
+      [email]
     );
     if (existingRows.length) {
-      throw new Error("Запись для данного login уже существует");
+      throw new Error("Запись для данного email уже существует");
     }
 
     const uuid = uuidv4();
 
     const [result] = await pool.query(
       `INSERT INTO usersDaily
-      (uuid, login, data) 
+      (uuid, email, data) 
       VALUES (?, ?, ?)`,
-      [uuid, login, userData]
+      [uuid, email, userData]
     );
 
-    return { id: result.insertId, login };
+    return { id: result.insertId, email };
   }
 
-  static async update(login, updateData) {
-    if (!login) {
-      throw new Error("login обязателен");
+  static async update(email, updateData) {
+    if (!email) {
+      throw new Error("email обязателен");
     }
 
     // const mealsValue =
@@ -68,15 +68,15 @@ class UserDaily {
     const [result] = await pool.query(
       `UPDATE usersDaily SET 
         data = ?
-      WHERE login = ?`,
-      [updateData, login]
+      WHERE email = ?`,
+      [updateData, email]
     );
 
     if (result.affectedRows === 0) {
-      throw new Error("Запись для данного login не найдена");
+      throw new Error("Запись для данного email не найдена");
     }
 
-    return { success: true, login };
+    return { success: true, email };
   }
 
   static async findByEmail(email) {
@@ -93,18 +93,18 @@ class UserDaily {
     return rows[0] || null;
   }
 
-  static async findByName(login) {
-    const [rows] = await pool.query("SELECT * FROM users WHERE login = ?", [
-      login,
+  static async findByName(email) {
+    const [rows] = await pool.query("SELECT * FROM users WHERE email = ?", [
+      email,
     ]);
     return rows[0] || null;
   }
 
-  static async getUserFullDataByName(login, day) {
+  static async getUserFullDataByName(email, day) {
     try {
       const [userRows] = await pool.query(
-        "SELECT * FROM users WHERE login = ?",
-        [login]
+        "SELECT * FROM users WHERE email = ?",
+        [email]
       );
 
       if (!userRows.length) {
@@ -112,8 +112,8 @@ class UserDaily {
       }
 
       const [dailyRows] = await pool.query(
-        "SELECT * FROM usersDaily WHERE login = ?",
-        [login]
+        "SELECT * FROM usersDaily WHERE email = ?",
+        [email]
       );
 
       const userData = userRows[0];
@@ -157,9 +157,9 @@ class UserDaily {
     }
   }
 
-  static async checkUserName(login) {
-    const [rows] = await pool.query("SELECT * FROM users WHERE login = ?", [
-      login,
+  static async checkUserName(email) {
+    const [rows] = await pool.query("SELECT * FROM users WHERE email = ?", [
+      email,
     ]);
     return rows[0] || null;
   }

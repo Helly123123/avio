@@ -1,271 +1,222 @@
 
-## AVIO API
+---
 
-#### Создание пользователя
+## 1. Регистрация пользователя
 
-```http
-  POST /api/register
-```
+**POST** `/api/register`
 
-| Параметр | Тип данных     |  Обязательное               |
-| :-------- | :------- |  :------------------------- |
-| `login` | `string` | Да |
-| `password` | `string` | Да |
-| `email` | `string` | Да |
-| `age` | `Int` | Нет |
-| `typeWork` | `string` | Нет |
-| `purpose` | `string` | Нет |
-
-#### Ответ 201
-
-```javascript
-{
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cC...",
+**Входные параметры:**
+- `login` (string, обязательно)
+- `password` (string, обязательно)
+- `email` (string, обязательно)
+- `age` (int, опционально)
+- `typeWork` (string, опционально)
+- `purpose` (string, опционально)
+- `user_id` (string, опционально)
+- `chat_id` (string, опционально)
+    
+**Ответы:**
+- **201**: 
+  ```json
+  {
+    "token": "...",
+    "sendCode": true,
     "user": {
-        "email": "pizda@mail.ru",
-        "login": "helly"
+      "email": "...",
+      "login": "...",
+      "age": null,
+      "purpose": null,
+      "typeWork": null,
+      "verified": 0,
+      "subscription": 0
     }
-}
-```
+  }
+  ```
+- **400**: Ошибка валидации (например, некорректный email)
+- **401**: Пользователь с таким email или login уже существует, либо ошибка регистрации
+- **404**: Ошибка при регистрации пользователя
 
-#### Авторизация
-       
-```http
-  POST /api/login
-```    
+---
 
-| Параметр | Тип данных     |  Обязательное               |
-| :-------- | :------- |  :------------------------- |
-| `login` | `string` | Да |
-| `email` | `string` | Да |
+## 2. Авторизация
 
-#### Ответ 201
+**POST** `/api/login`
 
-```javascript
-{
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cC...",
+**Входные параметры:**
+- `email` (string, обязательно)
+- `password` (string, обязательно)
+
+**Ответы:**
+- **200**:
+  ```json
+  {
+    "token": "...",
     "user": {
-        "email": "pizda@mail.ru",
-        "login": "helly"
-    }
-}
-```
-
-#### Изменение/создание ежедневных данных пользователя
-       
-```http
-  POST /api/changeUserDaily
-```    
-
-| Параметр | Тип данных     |  Обязательное               |
-| :-------- | :------- |  :------------------------- |
-| `login` | `string` | Да |
-| `sleep_time` | `string` | Да |
-| `meals` | `Object` | Да |
-| `energy_level` | `Int` | Да |
-| `work_schedule: { start: "09:00" end: "18:00" }` | `Object` | Да |
-| `stress_level` | `Int` | Да |
-| `physical_activity` | `string` | Да |
-| `recreation_preferences` | `Object` | Да |
-| `time_awakening` | `string` | Да |
-
-#### Ответ 200
-
-```javascript
-{
-    "message": "Данные пользователя успешно обновлены",
-    "login": "helly"
-}
-```
-
-#### Получить задачи
-       
-```http
-  GET /api/getTasks
-```    
-
-| Параметр | Тип данных     |  Обязательное               |
-| :-------- | :------- |  :------------------------- |
-| `login` | `string` | Да |
-| `created_at` | `string` | Да |
-
-#### Ответ 200
-
-```javascript
-{
-    "data": [
-        {
-            "uuid": "2d51059e-9e27-482d-b8b7-f46caf870989",
-            "text": "Провести короткую медитацию для повышения концентрации и снижения стресса.",
-            "status": 0,
-            "time": "09:30",
-            "created_at": "2025-07-09T22:00:00.000Z"
-        },
-    ]
-}
-```
-
-#### Изменить статус задачи
-       
-```http
-  POST /api/updateStatusTasks
-```    
-
-| Параметр | Тип данных     |  Обязательное               |
-| :-------- | :------- |  :------------------------- |
-| `login` | `string` | Да |
-| `status` | `0 или 1` | Да |
-| `uuid` | `string` | Да |
-
-#### Ответ 200
-
-```javascript
-{
-    "data": true
-}
-```
-
-#### Изменить статус рассылки
-       
-```http
-  POST /api/changeMailingStation
-```    
-
-| Параметр | Тип данных     |  Обязательное               |
-| :-------- | :------- |  :------------------------- |
-| `login` | `string` | Да |
-| `value` | `0 или 1` | Да |
-| `user_id` | `string` | Да |
-
-#### Ответ 200
-
-```javascript
-{
-    "is_active": 1 // или 0
-}
-```
-
-#### Получить рекомендации 
-
-```http
-  POST /api/giveRecommendations
-```    
-
-| Параметр | Тип данных     |  Обязательное               |
-| :-------- | :------- |  :------------------------- |
-| `login` | `string` | Да |
-| `day` | `string` | Да |
-
-#### Ответ 200
-
-```javascript
-{
-    "data": {
-        "request_id": 18163569,
-        "model": "gpt-4-1",
-        "status": "processing"
+      "login": "...",
+      "email": "...",
+      "age": null,
+      "purpose": null,
+      "typeWork": null,
+      "verified": 0,
+      "subscription": 0
     },
-    "user": {
-        "uuid": "90e38f8d-1e06-4b7e-801b-9edf24034e70",
-        "login": "helly",
-        "password": "$2b$10$NX38SF9d5aTFs4nRRYsnf.HGOz8zciY0G9m/ihfbMwGzjYopGIAD.",
-        "email": "pizda@mail.ru",
-        "age": 16,
-        "purpose": "popoa",
-        "typeWork": "gbpl",
-        "created_at": "2025-07-10T19:24:57.000Z",
-        "sleep_time": 8,
-        "meals": [
-            "breakfast",
-            "lunch",
-            "dinner"
-        ],
-        "energy_level": 7,
-        "work_schedule": {
-            "start": "09:00",
-            "end": "18:00"
-        },
-        "stress_level": 5,
-        "physical_activity": 7,
-        "recreation_preferences": [
-            "walk",
-            "meditation"
-        ],
-        "time_awakening": "07:30",
-        "has_daily_data": true
-    },
-    "logs": {
-        "fieldCount": 0,
-        "affectedRows": 1,
-        "insertId": 0,
-        "info": "",
-        "serverStatus": 2,
-        "warningStatus": 0,
-        "changedRows": 0
-    }
-}
-```
+    "daily": ...
+  }
+  ```
+- **400**: Email и пароль обязательны, либо слишком длинные, либо некорректный формат email
+- **401**: Неверные учетные данные или ошибка авторизации
 
-#### Получить задачи 
+---
 
-```http
-  POST /api/createTasks
-```    
+## 3. Верификация аккаунта
 
-| Параметр | Тип данных     |  Обязательное               |
-| :-------- | :------- |  :------------------------- |
-| `login` | `string` | Да |
-| `day` | `string` | Да |
+**POST** `/api/verifiedAccount`
 
-#### Ответ 200
+**Входные параметры:**
+- `email` (string, обязательно)
+- `code` (string, обязательно)
 
-```javascript
-{
-    "data": {
-        "request_id": 18163569,
-        "model": "gpt-4-1",
-        "status": "processing"
-    },
-    "user": {
-        "uuid": "90e38f8d-1e06-4b7e-801b-9edf24034e70",
-        "login": "helly",
-        "password": "$2b$10$NX38SF9d5aTFs4nRRYsnf.HGOz8zciY0G9m/ihfbMwGzjYopGIAD.",
-        "email": "pizda@mail.ru",
-        "age": 16,
-        "purpose": "popoa",
-        "typeWork": "gbpl",
-        "created_at": "2025-07-10T19:24:57.000Z",
-        "sleep_time": 8,
-        "meals": [
-            "breakfast",
-            "lunch",
-            "dinner"
-        ],
-        "energy_level": 7,
-        "work_schedule": {
-            "start": "09:00",
-            "end": "18:00"
-        },
-        "stress_level": 5,
-        "physical_activity": 7,
-        "recreation_preferences": [
-            "walk",
-            "meditation"
-        ],
-        "time_awakening": "07:30",
-        "has_daily_data": true
-    },
-    "logs": {
-        "fieldCount": 0,
-        "affectedRows": 1,
-        "insertId": 0,
-        "info": "",
-        "serverStatus": 2,
-        "warningStatus": 0,
-        "changedRows": 0
-    }
-}
-```
+**Ответы:**
+- **200**: 
+  ```json
+  { "message": "Аккаунт успешно верифицирован" }
+  ```
+- **400**: Некорректный формат email
+- **401**: Аккаунт не найден, ошибка при верификации, неверный код
+- **500**: Ошибка при регистрации пользователя
 
-![App Screenshot](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHvTyIyWtlXugChDiJfZ8KLcnbmuBUeAVXWg&s)
+---
 
+## 4. Получить задачи
+
+**GET** `/api/getTasks` (требует авторизации)
+
+**Входные параметры (body):**
+- `login` (string, обязательно)
+- `created_at` (string, обязательно)
+
+**Ответы:**
+- **200**:
+  ```json
+  { "data": [ ... ] }
+  ```
+- **404**: login и created_at обязательны
+- **500**: Ошибка сервера
+
+---
+
+## 5. Изменить статус задачи
+
+**POST** `/api/updateStatusTasks` (требует авторизации)
+
+**Входные параметры:**
+- `login` (string, обязательно)
+- `uuid` (string, обязательно)
+- `status` (0 или 1, обязательно)
+
+**Ответы:**
+- **200**: 
+  ```json
+  { "data": true }
+  ```
+  или
+  ```json
+  { "message": "Такой задачи нет" }
+  ```
+- **404**: login, status, uuid обязательны
+- **500**: Ошибка сервера
+
+---
+
+## 6. Изменить статус рассылки
+
+**POST** `/api/changeMailingStation` (требует авторизации)
+
+**Входные параметры:**
+- `userId` (string, обязательно)
+- `value` (0 или 1, обязательно)
+
+**Ответы:**
+- **200**: 
+  ```json
+  { "is_active": 1 }
+  ```
+- **400**: user_id и value обязательны, либо value не 0/1
+- **401**: Доступ запрещён
+- **404**: Не удалось обновить статус рассылки
+- **500**: Ошибка при сохранении данных пользователя
+
+---
+
+## 7. Изменение/создание ежедневных данных пользователя
+
+**POST** `/api/changeUserDaily` (требует авторизации)
+
+**Входные параметры:**
+- `email` (string, обязательно)
+- `sleep_time` (string, обязательно)
+- `meals` (object, обязательно)
+- `energy_level` (int, обязательно)
+- `work_schedule` (object, обязательно)
+- `stress_level` (int, обязательно)
+- `physical_activity` (string, обязательно)
+- `recreation_preferences` (object, обязательно)
+- `time_awakening` (string, обязательно)
+- `day` (string, опционально)
+
+**Ответы:**
+- **200**: 
+  ```json
+  { "message": "Данные пользователя успешно обновлены", "email": "..." }
+  ```
+- **201**: 
+  ```json
+  { "message": "Данные пользователя успешно созданы", "id": ..., "email": "..." }
+  ```
+- **400**: email обязателен, energy_level/stress_level/physical_activity должны быть числами
+- **404**: Пользователь не найден
+- **500**: Ошибка при сохранении данных пользователя
+
+---
+
+## 8. Получить рекомендации
+
+**POST** `/api/giveRecommendations` (требует авторизации)
+
+**Входные параметры:**
+- `login` (string, обязательно)
+- `day` (string, обязательно)
+
+**Ответы:**
+- **200**: 
+  ```json
+  {
+    "data": { ... },
+    "user": { ... },
+    "logs": { ... }
+  }
+  ```
+- **422**: Ошибка валидации данных API
+- **500**: Ошибка при запросе к GPT API, либо не настроен API токен
+
+---
+
+## 9. Получить задачи (генерация через нейросеть)
+
+**POST** `/api/createTasks` (требует авторизации)
+
+**Входные параметры:**
+- `login` (string, обязательно)
+- `day` (string, обязательно)
+
+**Ответы:**
+- **200**: 
+  ```json
+  {
+    "data": { ... },
+    "user": { ... },
+    "logs": { ... }
+  }
+  ```
+- **422**: Ошибка валидации данных API
+- **500**: Ошибка при запросе к GPT API, либо не настроен API токен

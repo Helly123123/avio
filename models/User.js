@@ -6,7 +6,12 @@ class User {
     const [rows] = await pool.query("SELECT * FROM users WHERE email = ?", [
       email,
     ]);
-    return rows[0];
+    const [daily] = await pool.query("SELECT * FROM usersDaily WHERE email = ?", [email]);
+
+    return {
+      ...rows[0],
+      daily: JSON.parse(daily[0].data)
+    }
   }
 
   static async findByUserId(login) {

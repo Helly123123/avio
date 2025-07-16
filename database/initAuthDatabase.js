@@ -46,7 +46,7 @@ async function initializeDatabase() {
     await connection.query(`
       CREATE TABLE IF NOT EXISTS usersDaily (
       uuid VARCHAR(36) UNIQUE,
-      login VARCHAR(50) NOT NULL,
+      email VARCHAR(255) NOT NULL,
       data TEXT
     )
     `);

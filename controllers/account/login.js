@@ -64,11 +64,17 @@ module.exports = async (req, res) => {
     res.json({
       token,
       user: {
-        id: user.id,
         login: user.login,
         email: user.email,
+        age: user.age || null,
+        purpose: user.purpose || null,
+        typeWork: user.typeWork || null,
+        verified: user.verified,
+        subscription: user.subscription,
       },
+      daily: user.daily
     });
+
   } catch (error) {
     console.error("Ошибка авторизации:", error);
     res.status(401).json({
