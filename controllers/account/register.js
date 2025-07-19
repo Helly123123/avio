@@ -23,8 +23,7 @@ module.exports = async (req, res) => {
       });
     }
 
-    const { login, password, email, user_id } = req.body;
-    const { age, purpose, typeWork, chat_id } = req.body;
+    const { login, password, email } = req.body;
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -34,9 +33,8 @@ module.exports = async (req, res) => {
     }
 
     const existingByEmail = await User.findByEmail(email);
-    const existingById = await User.findByUserId(user_id);
 
-    if (existingByEmail || existingById) {
+    if (existingByEmail.email) {
       return res.status(401).json({
         message: "Пользователь с таким email или login уже существует",
       });
@@ -48,16 +46,10 @@ module.exports = async (req, res) => {
       login,
       password: hashedPassword,
       email,
-      age,
-      purpose,
-      typeWork,
-      user_id,
-      chat_id,
     });
 
     const token = jwt.sign(
       {
-        userId: user_id,
         email: email,
         login: login,
       },
@@ -76,15 +68,9 @@ module.exports = async (req, res) => {
         await authCode.create(email, login, code);
         res.status(201).json({
           token,
-          sendCode: true,
           user: {
             email: newUser.email,
             login: newUser.login,
-            age: newUser.age || null,
-            purpose: newUser.purpose || null,
-            typeWork: newUser.typeWork || null,
-            verified: 0,
-            subscription: 0,
           },
         });
       }

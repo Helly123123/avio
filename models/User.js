@@ -6,12 +6,24 @@ class User {
     const [rows] = await pool.query("SELECT * FROM users WHERE email = ?", [
       email,
     ]);
-    const [daily] = await pool.query("SELECT * FROM usersDaily WHERE email = ?", [email]);
+    const [daily] = await pool.query(
+      "SELECT * FROM usersDaily WHERE email = ?",
+      [email]
+    );
+
+    console.log(daily, rows[0]);
+
+    if (daily.length === 0) {
+      return {
+        ...rows[0],
+        daily: null,
+      };
+    }
 
     return {
       ...rows[0],
-      daily: JSON.parse(daily[0].data)
-    }
+      daily: JSON.parse(daily[0].data),
+    };
   }
 
   static async findByUserId(login) {
@@ -49,6 +61,25 @@ class User {
       purpose,
       typeWork,
       affectedRows: result.affectedRows,
+    };
+  }
+
+  static async updateUserData(email, userData) {
+    const { age, purpose, typeWork } = userData;
+
+    const [result] = await pool.query(
+      `UPDATE users 
+       SET age = ?, purpose = ?, typeWork = ? 
+       WHERE email = ?`,
+      [age || null, purpose || null, typeWork || null, email]
+    );
+
+    console.log(result);
+    return {
+      email,
+      age,
+      purpose,
+      typeWork,
     };
   }
 }
