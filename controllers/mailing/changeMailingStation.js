@@ -3,14 +3,13 @@ const UserMailing = require("../../models/mailings");
 module.exports = async (req, res) => {
   try {
     const { userId, value } = req.body;
-
+     
     if (!userId || value === undefined) {
       return res.status(400).json({
         message: "user_id и value обязательны",
       });
     }
-
-    // Convert value to number and validate
+    
     const numericValue = parseInt(value, 10);
     if (isNaN(numericValue) || (numericValue !== 0 && numericValue !== 1)) {
       return res.status(400).json({

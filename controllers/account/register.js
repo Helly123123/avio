@@ -6,6 +6,7 @@ require("dotenv").config();
 const createTasks = require("../../database/initTasksDatabase");
 const { sendVerificationCode } = require("../sendCode/mailingController");
 const authCode = require("../../models/authCode");
+const UserLimits = require("../../models/userLimits");
 
 if (!process.env.JWT_SECRET) {
   console.error("FATAL: JWT_SECRET не загружен");
@@ -66,12 +67,16 @@ module.exports = async (req, res) => {
       const success = await sendVerificationCode(email, code);
       if (success) {
         await authCode.create(email, login, code);
+        await UserLimits.create(newUser.uuid);
         res.status(201).json({
-          token,
           user: {
             email: newUser.email,
             login: newUser.login,
+            age: newUser.age || "Waiting added",
+            purpose: newUser.purpose || "Waiting added",
+            typeWork: newUser.typeWork || "Waiting added"
           },
+          verification: "Waiting verification",
         });
       }
     } else {

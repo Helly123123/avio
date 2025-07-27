@@ -2,7 +2,7 @@ const pool = require("../config/db");
 const { v4: uuidv4 } = require("uuid");
 
 class UserDaily {
-  static async create(userData, email) {
+  static async create(userData, email, uuid) {
     // const {
     //   sleep_time,
     //   meals,
@@ -37,7 +37,7 @@ class UserDaily {
       throw new Error("Запись для данного email уже существует");
     }
 
-    const uuid = uuidv4();
+    
 
     const [result] = await pool.query(
       `INSERT INTO usersDaily

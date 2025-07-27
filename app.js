@@ -12,6 +12,8 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+require("./utils/resetLimits");
+
 const authRoutes = require("./routes/accountRouter");
 const userDailyRouter = require("./routes/userDailyRouter");
 const neuralRouter = require("./routes/neuralRouter");

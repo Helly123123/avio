@@ -72,6 +72,15 @@ async function initializeDatabase() {
     `);
 
     await connection.query(`
+      CREATE TABLE IF NOT EXISTS userLimits (
+      uuid VARCHAR(36) UNIQUE,
+      recommendations INT DEFAULT 3,
+      tasks INT DEFAULT 3,
+      updateData INT
+    )
+    `);
+
+    await connection.query(`
       CREATE TABLE IF NOT EXISTS mailings (
         uuid VARCHAR(36) UNIQUE,
         user_id INT NOT NULL,

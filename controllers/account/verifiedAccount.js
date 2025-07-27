@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
         message: "Некорректный формат email",
       });
     }
-
+    
     const existingByEmail = await User.findByEmail(email);
 
     if (!existingByEmail) {
@@ -25,6 +25,7 @@ module.exports = async (req, res) => {
         message: "Аккаунт не найден",
       });
     }
+
     const getCode = await authCode.getUserCode(email);
     console.log(getCode.code);
     if (getCode.code === code) {

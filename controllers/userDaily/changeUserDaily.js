@@ -1,6 +1,9 @@
 const { json } = require("express");
 const UserDaily = require("../../models/UserDaily");
 const UserDailyData = require("../../models/UserDailyData");
+const { decodeAndVerifyJWT } = require('../../utils/decodeToken');
+
+
 
 module.exports = async (req, res) => {
   try {
@@ -16,7 +19,7 @@ module.exports = async (req, res) => {
       time_awakening,
       day,
     } = req.body;
-
+    
     const data = {
       sleep_time,
       meals,
@@ -27,6 +30,16 @@ module.exports = async (req, res) => {
       recreation_preferences,
       time_awakening,
     };
+
+    const token = req.headers.authorization?.split(" ")[1];
+
+    const decoded = decodeAndVerifyJWT(token);
+
+    if (!decoded.success) {
+      return res.status(401).json({
+        message: "Ошибка при проверке токена"
+      })
+    }
 
     if (!email) {
       return res.status(400).json({
@@ -66,7 +79,7 @@ module.exports = async (req, res) => {
       const getDataUser = await UserDailyData.getUserData(day, data);
       console.log(getDataUser);
       if (getDataUser) {
-        result = await UserDaily.create(JSON.stringify(getDataUser), email);
+        result = await UserDaily.create(JSON.stringify(getDataUser), email, decoded.data.uuid);
         return res.status(201).json({
           message: "Данные пользователя успешно созданы",
           id: result.id,

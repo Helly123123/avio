@@ -26,6 +26,78 @@ class User {
     };
   }
 
+  static async changeSubscription(email) {
+    const [result] = await pool.query(
+      "UPDATE users SET subscription = ? WHERE email = ?",
+      [1, email]
+    );
+    console.log(result);
+    return result;
+  }
+
+  static async getAllData(uuid) {
+    try {
+      const [daily] = await pool.query(
+        "SELECT * FROM usersDaily WHERE uuid = ?",
+        [uuid]
+      );
+      const [user] = await pool.query("SELECT * FROM users WHERE uuid = ?", [uuid]);
+      
+      const [userLimits] = await pool.query("SELECT * FROM userLimits WHERE uuid = ?", [uuid]);
+      const processDailyData = (data) => {
+        if (!data) return "Waiting added";
+        
+        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        const processedData = {};
+        
+        days.forEach(day => {
+          if (!data[day]) {
+            processedData[day] = "Waiting added";
+            return;
+          }
+          
+          processedData[day] = {
+            sleep_time: data[day].sleep_time || "Waiting added",
+            meals: data[day].meals && data[day].meals.length > 0 ? data[day].meals : "Waiting added",
+            energy_level: data[day].energy_level || "Waiting added",
+            work_schedule: {
+              start: data[day].work_schedule?.start || "Waiting added",
+              end: data[day].work_schedule?.end || "Waiting added"
+            },
+            stress_level: data[day].stress_level || "Waiting added",
+            physical_activity: data[day].physical_activity || "Waiting added",
+            recreation_preferences: data[day].recreation_preferences && data[day].recreation_preferences.length > 0 
+              ? data[day].recreation_preferences 
+              : "Waiting added",
+            time_awakening: data[day].time_awakening || "Waiting added"
+          };
+        });
+        
+        return processedData;
+      };
+
+      return {
+        user: {
+          login: user[0].login,
+          email: user[0].email,
+          age: user[0].age || "Waiting added",
+          purpose: user[0].purpose || "Waiting added",
+          typeWork: user[0].typeWork || "Waiting added",
+          verified: user[0].verified || "Waiting verification",
+          subscription: user[0].subscription === 1
+        },
+        daily: daily[0]?.data ? processDailyData(JSON.parse(daily[0].data)) : "Waiting added",
+        userLimits: {
+          recommendations: userLimits[0].recommendations,
+          tasks: userLimits[0].tasks
+        },
+      };
+    } catch (error) {
+      console.error("Ошибка при получении данных пользователя:", error);
+      throw error;
+    }
+  }
+  
   static async findByUserId(login) {
     const [rows] = await pool.query("SELECT * FROM users WHERE login = ?", [
       login,
@@ -55,6 +127,7 @@ class User {
     console.log(result);
     return {
       id: result.insertId,
+      uuid,
       login,
       email,
       age,

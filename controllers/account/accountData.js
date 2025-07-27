@@ -4,6 +4,12 @@ const updateUserData = async (req, res) => {
   try {
     const { email, age, purpose, typeWork } = req.body;
 
+    if (!age || !purpose || !typeWork) {
+      return res.status(400).json({
+        message: "age, purpose, typeWork не могут быть пустыми",
+      });
+    }
+
     if (!email) {
       return res.status(400).json({
         message: "Почта не найдена",

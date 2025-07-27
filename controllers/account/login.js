@@ -1,4 +1,5 @@
 const User = require("../../models/User");
+const UserLimits = require("../../models/userLimits");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
@@ -33,11 +34,14 @@ module.exports = async (req, res) => {
     }
 
     const user = await User.findByEmail(email);
+    console.log(user);
     if (!user) {
       return res.status(401).json({
         message: "Неверные учетные данные",
       });
     }
+
+    const userLimits = await UserLimits.findByUuid(user.uuid);
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
@@ -53,7 +57,7 @@ module.exports = async (req, res) => {
 
     const token = jwt.sign(
       {
-        userId: user.user_id,
+        uuid: user.uuid,
         email: user.email,
         login: user.login,
       },
@@ -61,29 +65,29 @@ module.exports = async (req, res) => {
       { expiresIn: "24h" }
     );
 
-    res.json({
+    res.status(200).json({
       token,
       user: {
         login: user.login,
         email: user.email,
-        age: user.age || null,
-        purpose: user.purpose || null,
-        typeWork: user.typeWork || null,
-        verified: user.verified,
+        age: user.age || "Waiting added",
+        purpose: user.purpose || "Waiting added",
+        typeWork: user.typeWork || "Waiting added",
+        verified: user.verified || "Waiting verification",
         subscription: user.subscription,
       },
-      daily: user.daily
+      daily: user.daily || "Waiting added",
+      limits: {
+        recommendations: userLimits.recommendations,
+        tasks: userLimits.tasks,
+      },
     });
 
   } catch (error) {
     console.error("Ошибка авторизации:", error);
     res.status(401).json({
       message: "Ошибка при авторизации",
-      // Только для разработки:
-      ...(process.env.NODE_ENV === "development" && {
-        error: error.message,
-        stack: error.stack,
-      }),
+  
     });
   }
 };
