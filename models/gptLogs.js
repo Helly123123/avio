@@ -2,16 +2,16 @@ const pool = require("../config/db");
 const { v4: uuidv4 } = require("uuid");
 
 class GptLogs {
-  static async create(request_id, model, status, login) {
-    if (!login || !request_id || !model || !status) {
+  static async create(request_id, model, status, uuid) {
+    if (!uuid || !request_id || !model || !status) {
       throw new Error("Нет нужный данных");
     }
 
     const [result] = await pool.query(
       `INSERT INTO recommendationsLogs
-      (request_id, model, status, cost, login) 
+      (uuid, request_id, model, status, cost) 
       VALUES (?, ?, ?, ?, ?)`,
-      [request_id, model, status, 0, login]
+      [uuid, request_id, model, status, 0]
     );
 
     return result;

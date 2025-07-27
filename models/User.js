@@ -57,6 +57,7 @@ class User {
 
       return {
         user: {
+          uuid: user[0].uuid,
           login: user[0].login,
           email: user[0].email,
           age: user[0].age || "Waiting added",

@@ -53,21 +53,21 @@ async function initializeDatabase() {
 
     await connection.query(`
       CREATE TABLE IF NOT EXISTS recommendationsLogs (
+      uuid VARCHAR(36),
       request_id INT,
       model TEXT,
       status TEXT,
-      cost INT,
-      login TEXT
+      cost INT
     )
     `);
 
     await connection.query(`
       CREATE TABLE IF NOT EXISTS tasksLogs (
+      uuid VARCHAR(36),
       request_id INT,
       model TEXT,
       status TEXT,
-      cost INT,
-      login TEXT
+      cost INT
     )
     `);
 

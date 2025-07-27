@@ -103,17 +103,18 @@ module.exports = async (req, res) => {
     );
 
     console.log(response.data);
-
+      
+      console.log(allDataUser.user)
     const createLogs = await GptLogs.create(
       response.data.request_id,
       response.data.model,
       response.data.status,
-      userData.login
+      allDataUser.user.uuid
     );
 
     res.json({
       data: response.data,
-      user: userData || null,
+      user: allDataUser.user || null,
       logs: createLogs,
     });
   } catch (error) {
