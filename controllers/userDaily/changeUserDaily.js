@@ -8,7 +8,6 @@ const { decodeAndVerifyJWT } = require('../../utils/decodeToken');
 module.exports = async (req, res) => {
   try {
     const {
-      email,
       sleep_time,
       meals,
       energy_level,
@@ -34,17 +33,11 @@ module.exports = async (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];
 
     const decoded = decodeAndVerifyJWT(token);
-
+    console.log(decoded)
     if (!decoded.success) {
       return res.status(401).json({
         message: "Ошибка при проверке токена"
       })
-    }
-
-    if (!email) {
-      return res.status(400).json({
-        message: "email обязателен",
-      });
     }
 
     if (
@@ -58,32 +51,32 @@ module.exports = async (req, res) => {
       });
     }
 
-    const checkUser = await UserDaily.findByName(email);
+    const checkUser = await UserDaily.findByName(decoded.data.email);
     if (!checkUser) {
       return res.status(404).json({
         message: "Пользователь не найден",
       });
     }
 
-    const checkDaily = await UserDaily.getUserFullDataByName(email, day);
+    const checkDaily = await UserDaily.getUserFullDataByName(decoded.data.email, day);
     let result;
     if (checkDaily && checkDaily.has_daily_data) {
-      const updateData = await UserDailyData.updateDataUser(email, day, data);
+      const updateData = await UserDailyData.updateDataUser(decoded.data.email, day, data);
       console.log(updateData);
-      result = await UserDaily.update(email, JSON.stringify(updateData));
+      result = await UserDaily.update(decoded.data.email, JSON.stringify(updateData));
       return res.status(200).json({
         message: "Данные пользователя успешно обновлены",
-        email,
+        email: decoded.data.email,
       });
     } else {
       const getDataUser = await UserDailyData.getUserData(day, data);
       console.log(getDataUser);
       if (getDataUser) {
-        result = await UserDaily.create(JSON.stringify(getDataUser), email, decoded.data.uuid);
+        result = await UserDaily.create(JSON.stringify(getDataUser), decoded.data.email, decoded.data.uuid);
         return res.status(201).json({
           message: "Данные пользователя успешно созданы",
           id: result.id,
-          email,
+          email: decoded.data.email,
         });
       }
     }

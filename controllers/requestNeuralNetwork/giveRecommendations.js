@@ -58,29 +58,28 @@ module.exports = async (req, res) => {
       });
     }
 
-    return;
-
-    if (userData) {
+    
+    if (allDataUser) {
       paramsUser = await params.giveRecommendations(
-        userData.login,
-        userData.age,
-        userData.purpose,
-        userData.typeWork,
-        userData.sleep_time,
-        userData.meals,
-        userData.energy_level,
-        userData.work_schedule.start,
-        userData.work_schedule.end,
-        userData.stress_level,
-        userData.physical_activity,
-        userData.recreation_preferences,
-        userData.time_awakening,
+        allDataUser.user.login,
+        allDataUser.user.age,
+        allDataUser.user.purpose,
+        allDataUser.user.typeWork,
+        allDataUser.daily.sleep_time,
+        allDataUser.daily.meals,
+        allDataUser.daily.energy_level,
+        allDataUser.daily.work_schedule.start,
+        allDataUser.daily.work_schedule.end,
+        allDataUser.daily.stress_level,
+        allDataUser.daily.physical_activity,
+        allDataUser.daily.recreation_preferences,
+        allDataUser.daily.time_awakening,
         "Составь мне 2 рекомендации по работе и 2 рекомендации по питанию, от тебя требуется только задачи без приветственного текста Мне нужно чтобы в их отправил в виде JSON, только рекомендации и ничего более, чтобы я мог парсить эти данные, мне нужно заголовок, подзаголовок  и время когда лушче выполнить эту задачу"
       );
     }
 
-    console.log(paramsUser);
-
+    // console.log(paramsUser);
+// return
     const messageUser = [{ role: "user", content: paramsUser }];
 
     const requestData = {
