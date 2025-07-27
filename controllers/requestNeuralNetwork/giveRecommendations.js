@@ -3,6 +3,9 @@ require("dotenv").config();
 const UserDaily = require("../../models/UserDaily");
 const GptLogs = require("../../models/gptLogs");
 const params = require("../../config/params");
+const { decodeAndVerifyJWT } = require("../../utils/decodeToken");
+
+const User = require("../../models/User");
 
 module.exports = async (req, res) => {
   try {
@@ -27,8 +30,36 @@ module.exports = async (req, res) => {
       });
     }
 
-    let paramsUser;
-    const userData = await UserDaily.getUserFullDataByName(login, day);
+    const token = req.headers.authorization?.split(" ")[1];
+
+    const decoded = await decodeAndVerifyJWT(token);
+    console.log(decoded);
+    const allDataUser = await User.getDataForDay(decoded.data.uuid, day);
+    console.log(allDataUser);
+
+    function hasWaitingAdded(obj) {
+      for (const key in obj) {
+        if (obj[key] === "Waiting added") {
+          return true;
+        }
+        if (typeof obj[key] === "object" && obj[key] !== null) {
+          if (hasWaitingAdded(obj[key])) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    if (hasWaitingAdded(allDataUser)) {
+      return res.status(404).json({
+        message: "Не все данные заполнены",
+        data: allDataUser,
+      });
+    }
+
+    return;
+
     if (userData) {
       paramsUser = await params.giveRecommendations(
         userData.login,

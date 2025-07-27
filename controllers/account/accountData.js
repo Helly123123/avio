@@ -1,8 +1,9 @@
 const User = require("../../models/User");
+const { decodeAndVerifyJWT } = require("../../utils/decodeToken");
 
 const updateUserData = async (req, res) => {
   try {
-    const { email, age, purpose, typeWork } = req.body;
+    const { age, purpose, typeWork } = req.body;
 
     if (!age || !purpose || !typeWork) {
       return res.status(400).json({
@@ -10,13 +11,18 @@ const updateUserData = async (req, res) => {
       });
     }
 
-    if (!email) {
-      return res.status(400).json({
-        message: "Почта не найдена",
+    const token = req.headers.authorization?.split(" ")[1];
+
+    const decoded = await decodeAndVerifyJWT(token);
+    console.log(decoded);
+
+    if (!decoded.success) {
+      return res.status(401).json({
+        message: "Ошибка при проверке токена",
       });
     }
 
-    const result = await User.updateUserData(email, {
+    const result = await User.updateUserData(decoded.data.uuid, {
       age,
       purpose,
       typeWork,

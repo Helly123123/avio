@@ -37,8 +37,6 @@ class UserDaily {
       throw new Error("Запись для данного email уже существует");
     }
 
-    
-
     const [result] = await pool.query(
       `INSERT INTO usersDaily
       (uuid, email, data) 

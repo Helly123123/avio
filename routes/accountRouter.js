@@ -12,14 +12,17 @@ const authMiddleware = require("../middleware/authMiddlewareToken");
 const changeSubscriptionController = require("../controllers/account/changeSubscription");
 const getAllData = require("../controllers/account/getAllData");
 
-
 router.post("/register", registerValidator, registerController);
 
 router.post("/login", loginValidator, loginController);
 
 router.post("/verifiedAccount", verifiedAccountController);
 
-router.post("/changeSubscription", authMiddleware, changeSubscriptionController);
+router.post(
+  "/changeSubscription",
+  authMiddleware,
+  changeSubscriptionController
+);
 
 router.post("/getAllData", authMiddleware, getAllData);
 
