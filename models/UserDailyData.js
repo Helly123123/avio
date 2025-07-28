@@ -103,7 +103,7 @@ class UserDailyData {
 
   static async updateDataUser(login, day, data) {
     const [rows] = await pool.query(
-      "SELECT data FROM usersdaily WHERE email = ?",
+      "SELECT data FROM usersDaily WHERE email = ?",
       [login]
     );
 

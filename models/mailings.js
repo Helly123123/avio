@@ -33,6 +33,7 @@ class UserMailing {
     if (rows[0]) {
       return;
     }
+    
     const uuid = uuidv4();
 
     const [result] = await pool.query(

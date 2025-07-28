@@ -3,6 +3,7 @@ require("dotenv").config();
 const UserDaily = require("../../models/UserDaily");
 const GptLogs = require("../../models/gptLogs");
 const params = require("../../config/params");
+const userLimits = require("../../models/userLimits");
 const { decodeAndVerifyJWT } = require("../../utils/decodeToken");
 
 const User = require("../../models/User");
@@ -58,7 +59,23 @@ module.exports = async (req, res) => {
       });
     }
 
-    
+    const checkLimit = await userLimits.findByUuid(allDataUser.user.uuid);
+
+    if (checkLimit.recommendations === 0) {
+      return res.status(400).json({
+        message: "Лимит исчерпан",
+      });
+    } else {
+      const changeRecLimit = userLimits.changeRecLimit(allDataUser.user.uuid);
+      if (changeRecLimit.affectedRows != 1) {
+        return res.status(404).json({
+          message: "Ошибка при выставлении лимитов",
+        });
+      }
+    }
+
+    console.log(checkLimit);
+
     if (allDataUser) {
       paramsUser = await params.giveRecommendations(
         allDataUser.user.login,
@@ -78,8 +95,6 @@ module.exports = async (req, res) => {
       );
     }
 
-    // console.log(paramsUser);
-// return
     const messageUser = [{ role: "user", content: paramsUser }];
 
     const requestData = {
@@ -103,8 +118,8 @@ module.exports = async (req, res) => {
     );
 
     console.log(response.data);
-      
-      console.log(allDataUser.user)
+
+    console.log(allDataUser.user);
     const createLogs = await GptLogs.create(
       response.data.request_id,
       response.data.model,

@@ -2,6 +2,7 @@ require("dotenv").config();
 const { parseAssistantMessage } = require("../../utils/parseAssistantMessage");
 const { sendToFrontend } = require("../../utils/sendToFrontend");
 const GptLogs = require("../../models/gptLogs");
+const Recommendations = require("../../models/recommendations");
 
 module.exports = async (req, res) => {
   try {
@@ -10,6 +11,8 @@ module.exports = async (req, res) => {
     if (!webhookData || !webhookData.result || !webhookData.result[0]) {
       return res.status(400).json({ error: "Invalid data format" });
     }
+
+    console.log(webhookData);
 
     const updateStatus = await GptLogs.updateStatus(
       webhookData.request_id,
@@ -21,10 +24,29 @@ module.exports = async (req, res) => {
       webhookData.cost
     );
 
+    console.log(webhookData.request_id);
+
+    const getData = await GptLogs.getAllData(webhookData.request_id);
+
+    console.log(getData);
+
     const assistantMessage = webhookData.result[0].message.content;
     const recommendations = parseAssistantMessage(assistantMessage);
 
     const FRONTEND_WEBHOOK_URL = process.env.FRONTEND_WEBHOOK_URL;
+
+    // console.log(recommendations[0])
+    const createRecommendations = await Recommendations.create(
+      getData.uuid,
+      webhookData.request_id,
+      { recommendations }
+    );
+
+    if (createRecommendations.affectedRows === 0) {
+      await sendToFrontend(FRONTEND_WEBHOOK_URL, {
+        message: "Ошибка при создании рекомандаций",
+      });
+    }
 
     await sendToFrontend(FRONTEND_WEBHOOK_URL, {
       recommendations: recommendations,

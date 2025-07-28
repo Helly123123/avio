@@ -1,21 +1,20 @@
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
-function decodeAndVerifyJWT(token) {
+async function decodeAndVerifyJWT(token) {
   try {
     if (!process.env.JWT_SECRET) {
-      throw new Error('JWT_SECRET is not defined in environment variables');
+      throw new Error("JWT_SECRET is not defined in environment variables");
     }
-    
-    
+
     return {
-        success: true,
-        data: jwt.verify(token, process.env.JWT_SECRET)
-    }
+      success: true,
+      data: jwt.verify(token, process.env.JWT_SECRET),
+    };
   } catch (error) {
     return {
-        success: false
-    }
+      success: false,
+    };
     return null;
   }
 }
@@ -33,5 +32,5 @@ function getUserEmailFromToken(token) {
 module.exports = {
   decodeAndVerifyJWT,
   getUserIdFromToken,
-  getUserEmailFromToken
+  getUserEmailFromToken,
 };

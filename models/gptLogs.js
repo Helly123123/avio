@@ -36,6 +36,14 @@ class GptLogs {
     return { success: true };
   }
 
+  static async getAllData(request_id) {
+    const [rows] = await pool.query(
+      "SELECT * FROM recommendationsLogs WHERE request_id = ?",
+      [request_id]
+    );
+    return rows[0] || null;
+  }
+
   static async updateStatus(request_id, status) {
     if (!request_id || !status) {
       throw new Error("Нет нужный данных");

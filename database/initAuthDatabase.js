@@ -72,6 +72,14 @@ async function initializeDatabase() {
     `);
 
     await connection.query(`
+      CREATE TABLE IF NOT EXISTS recommendations (
+      uuid VARCHAR(36),
+      request_id INT,
+      data JSON
+    )
+    `);
+
+    await connection.query(`
       CREATE TABLE IF NOT EXISTS userLimits (
       uuid VARCHAR(36) UNIQUE,
       recommendations INT DEFAULT 3,
